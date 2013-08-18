@@ -1,4 +1,4 @@
-var store = chrome.storage.local;
+var store = chrome.storage.sync;
 var key = 'trello_width';
 var tabs = chrome.tabs;
 

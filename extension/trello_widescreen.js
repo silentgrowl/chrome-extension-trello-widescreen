@@ -1,4 +1,4 @@
-var store = chrome.storage.local;
+var store = chrome.storage.sync;
 
 function insertCSS(cssToInsert) {
   var head = document.getElementsByTagName('head')[0];
