@@ -1,11 +1,10 @@
 var store = chrome.storage.sync;
-var key = 'trello_width';
 var tabs = chrome.tabs;
 
-function setWidth() {
-  var width = document.getElementById("width").value;
-  store.set({'trello_width': width}, function(result) {
-    console.log("setting Trello width to: " + width);
+function storeValues() {
+  var selection = getSelectionValue();
+  var custom = document.getElementById("custom_width").value;
+  store.set({'custom': custom, 'selection': selection}, function(result) {
     chrome.tabs.query({url: "*://trello.com/*"}, function(tabs) {
       tabs.forEach(function(tab) {
         chrome.tabs.reload(tab.id);
@@ -15,16 +14,49 @@ function setWidth() {
   });
 }
 
-function loadWidth() {
-  store.get(key, function(result) {
-    var width = result.trello_width;
-    if (width === undefined) { width = 690; }
-    console.log("loading Trello width of: " + width);
-    document.getElementById("width").value = width;
+function mapEachSelection(f) {
+  var selections = document.getElementsByName("width_selection");
+  for (i = 0; i < selections.length; ++i) {
+    f(selections[i]);
+  }
+}
+
+function getSelectionValue() {
+  var selections = document.getElementsByName("width_selection");
+  for (i = 0; i < selections.length; ++i) {
+    if (selections[i].checked == true) {
+      return selections[i].value;
+    }
+  }
+}
+
+function loadSelection() {
+  store.get('selection', function(result) {
+    if (result.selection === "") {
+      mapEachSelection(function(sel) {
+        if (sel.value == "default") {
+          sel.checked = true;
+        }
+      });
+    } else {
+      mapEachSelection(function(sel) {
+        if (sel.value == result.selection) {
+          sel.checked = true;
+        }
+      });
+    }
+  });
+}
+
+function loadCustomWidth() {
+  store.get('custom', function(result) {
+    document.getElementById("custom_width").value = result.custom;
   });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById('set_width').addEventListener('click', setWidth);
-  loadWidth();
+  mapEachSelection(function(sel) { sel.addEventListener('change', storeValues); });
+  document.getElementById('custom_width').addEventListener('blur', storeValues);
+  loadSelection();
+  loadCustomWidth();
 });

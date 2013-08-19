@@ -10,8 +10,22 @@ function insertCSS(cssToInsert) {
   head.appendChild(style);
 }
 
-store.get('trello_width', function(result) {
-  var width = result.trello_width;
+function calculateWidth(selection, custom) {
+  if (selection === "default") {
+    return 690;
+  } else if (selection === "wide") {
+    return 900;
+  } else if (selection === "wider") {
+    return 1200;
+  } else if (selection === "even_wider") {
+    return 1500;
+  } else {
+    return custom;
+  }
+}
+
+store.get(['selection', 'custom'], function(result) {
+  var width = calculateWidth(result.selection, result.custom);
   var offset = width - 690;
   var cssString = ".window { width: " + width + "px !important; }"
   cssString += " .window-main-col { width: " + (472 + offset) + "px !important; }"
